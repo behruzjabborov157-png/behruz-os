@@ -74,9 +74,10 @@ Tugmalar: **F11** — toʻliq ekran, **F5** — yangilash.
 
 iPhone uchun APK ishlamaydi, lekin veb-ilova sifatida oʻrnatsa boʻladi:
 
-1. Repozitoriyda **Settings → Pages → Source: GitHub Actions** ni tanlang.
-2. **Actions** → “Ilovalarni yigʻish” → **Run workflow**.
-3. Manzil: `https://<github-login>.github.io/behruz-os/`
+1. Repozitoriyda **Settings → Pages → Build and deployment → Source: Deploy from a branch**,
+   Branch: **main**, papka: **/ (root)** → **Save**.
+2. 1–2 daqiqa kuting.
+3. Manzil: `https://<github-login>.github.io/behruz-os/www/`
 4. iPhone Safari'da oching → **Ulashish** → **Bosh ekranga qoʻshish**.
    Kompyuterda Chrome/Edge'da manzil satridagi **Oʻrnatish** belgisi.
 
