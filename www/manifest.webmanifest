@@ -1,0 +1,16 @@
+{
+  "name": "BEHRUZ OS",
+  "short_name": "BEHRUZ OS",
+  "description": "Shaxsiy hayot tizimi: odatlar, oʻqish, til, pul, ish, sport, ibodat",
+  "lang": "uz",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f4f8",
+  "theme_color": "#3d4fd6",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,120 @@
+# BEHRUZ OS — APK (Android), .exe (Windows) va veb-ilovani GitHub serverlarida avtomatik yigʻadi.
+# Har safar main shoxiga oʻzgarish yuklansa (yoki Actions → "Run workflow" bosilsa) ishga tushadi.
+name: Ilovalarni yigʻish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Paketlarni oʻrnatish
+        run: npm install --no-audit --no-fund
+
+      - name: Android loyihasini yaratish
+        run: |
+          npx cap add android
+          npx capacitor-assets generate --android
+          npx cap sync android
+
+      - name: APK yigʻish
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: APK ni imzolash
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          IN=android/app/build/outputs/apk/release/app-release-unsigned.apk
+          "$BT/zipalign" -f -p 4 "$IN" aligned.apk
+          "$BT/apksigner" sign \
+            --ks keystore/behruz-os.jks --ks-key-alias behruzos \
+            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD || 'behruzos2026' }} \
+            --key-pass pass:${{ secrets.KEYSTORE_PASSWORD || 'behruzos2026' }} \
+            --out BEHRUZ-OS.apk aligned.apk
+          "$BT/apksigner" verify BEHRUZ-OS.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BEHRUZ-OS-android
+          path: BEHRUZ-OS.apk
+
+  windows:
+    name: Windows ilovasi
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Paketlarni oʻrnatish
+        run: npm install --no-audit --no-fund
+
+      - name: .exe yigʻish
+        run: npx electron-builder --win --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BEHRUZ-OS-windows
+          path: dist/*.exe
+
+  release:
+    name: Yuklab olish sahifasi (Releases)
+    needs: [android, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: BEHRUZ OS 1.0.${{ github.run_number }}
+          body: |
+            **Telefon (Android):** BEHRUZ-OS.apk — telefonga yuklab, oching va oʻrnating.
+            **Kompyuter (Windows):** BEHRUZ-OS-Setup-*.exe — oʻrnatiladigan versiya; BEHRUZ-OS-Portable-*.exe — oʻrnatmasdan ishlaydi.
+          files: out/*
+
+  pages:
+    name: Veb-ilova (GitHub Pages)
+    runs-on: ubuntu-latest
+    # Settings → Pages → Source: "GitHub Actions" yoqilmagan boʻlsa, bu qadam oʻtkazib yuboriladi
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,50 @@
+{
+  "name": "behruz-os",
+  "productName": "BEHRUZ OS",
+  "version": "1.0.0",
+  "description": "BEHRUZ OS — shaxsiy hayot tizimi (Android va kompyuter ilovasi)",
+  "author": "Behruz",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win --publish never",
+    "cap:android": "cap add android && capacitor-assets generate --android && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/filesystem": "^7.0.0",
+    "@capacitor/share": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0",
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "uz.behruz.os",
+    "productName": "BEHRUZ OS",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["electron/**", "www/**", "package.json"],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "BEHRUZ OS",
+      "artifactName": "BEHRUZ-OS-Setup-${version}.exe"
+    },
+    "portable": { "artifactName": "BEHRUZ-OS-Portable-${version}.exe" },
+    "mac": { "target": "dmg", "icon": "build/icon.png" },
+    "linux": { "target": "AppImage", "icon": "build/icon.png" }
+  }
+}
